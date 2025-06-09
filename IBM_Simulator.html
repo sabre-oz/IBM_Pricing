@@ -1,0 +1,422 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2575.6">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="en"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;Interactive Database Pricing Calculator&lt;/title&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Tailwind CSS CDN --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Chart.js CDN --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.jsdelivr.net/npm/chart.js"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Placeholder Comments --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Chosen Palette: Slate Gray &amp; Indigo --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Application Structure Plan: The SPA is designed as a two-column dashboard. The left column serves as a configuration "control panel" where users can select database parameters and see the real-time cost for that single configuration. The right column is the "comparison canvas" where users can add multiple configurations to visualize them side-by-side in a detailed table, a total cost bar chart, and a cumulative cost line chart. This structure separates the "what-if" analysis (left) from the "saved for comparison" results (right), creating an intuitive user flow for building and evaluating different scenarios without losing context. --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Visualization &amp; Content Choices:<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>- Configuration Panel (Left): Uses dropdowns and a slider for input, which is more intuitive than text fields. A large text display shows the immediate cost calculation. Goal: Inform/Explore. Method: HTML forms + JS.</p>
+<p class="p1"><span class="Apple-converted-space">        </span>- Comparison Table (Right): A clear, sortable HTML table displays all parameters for saved configurations. Goal: Compare/Organize. Method: JS-generated HTML table.</p>
+<p class="p1"><span class="Apple-converted-space">        </span>- Bar Chart (Right): Compares the total and monthly costs of saved configurations. Provides a quick, high-level financial summary. Goal: Compare. Method: Chart.js Canvas.</p>
+<p class="p1"><span class="Apple-converted-space">        </span>- Line Chart (Right): Shows cumulative cost over the subscription duration for each saved item. This reveals the long-term financial impact. Goal: Change/Compare. Method: Chart.js Canvas.</p>
+<p class="p1"><span class="Apple-converted-space">        </span>- All choices adhere to the NO SVG/Mermaid constraint. --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* Custom styles for better aesthetics */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>body {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-family: 'Inter', sans-serif;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.chart-container {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>position: relative;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 100%;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height: 350px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>max-width: 800px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin-left: auto;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin-right: auto;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>@media (max-width: 768px) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.chart-container {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>height: 300px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body class="bg-slate-50"&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="container mx-auto p-4 sm:p-6 lg:p-8"&gt;</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;header class="mb-8 text-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h1 class="text-4xl font-extrabold text-slate-800 tracking-tight"&gt;Database Pricing Calculator&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="mt-2 text-lg text-slate-600"&gt;Analyze and compare costs for IBM Cloud database profiles.&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/header&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="grid grid-cols-1 lg:grid-cols-12 gap-8"&gt;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;!-- Left Column: Configuration Panel --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="lg:col-span-4 bg-white p-6 rounded-2xl shadow-lg border border-slate-200"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h2 class="text-2xl font-bold text-slate-800 mb-6"&gt;1. Configure Database&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="space-y-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;label for="db-select" class="block text-sm font-medium text-slate-700 mb-1"&gt;Database Engine&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;select id="db-select" class="w-full pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"&gt;&lt;/select&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                     </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;label for="profile-select" class="block text-sm font-medium text-slate-700 mb-1"&gt;Compute Profile&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;select id="profile-select" class="w-full pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"&gt;&lt;/select&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;label for="storage-slider" class="flex justify-between items-center text-sm font-medium text-slate-700"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;span&gt;Additional Storage&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;span id="storage-value" class="font-bold text-indigo-600"&gt;256 GB&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;input type="range" id="storage-slider" min="20" max="4096" step="20" value="256" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;label for="duration-select" class="block text-sm font-medium text-slate-700 mb-1"&gt;Subscription&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;select id="duration-select" class="w-full pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"&gt;&lt;/select&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="mt-8 pt-6 border-t border-slate-200"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="text-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="text-sm text-slate-500"&gt;Estimated Total Cost&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p id="total-cost-display" class="text-4xl font-extrabold text-indigo-600 my-2"&gt;$0.00&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p id="monthly-cost-display" class="text-base text-slate-600"&gt;$0.00 / month&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;button id="add-to-comparison-btn" class="mt-6 w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>Add to Comparison</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;!-- Right Column: Comparison Area --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="lg:col-span-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>&lt;div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-200 min-h-full"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h2 class="text-2xl font-bold text-slate-800 mb-4"&gt;2. Side-by-Side Comparison&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div id="comparison-area"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div id="placeholder" class="text-center py-20 border-2 border-dashed border-slate-300 rounded-lg"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;p class="text-slate-500"&gt;Add configurations to see a comparison.&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div id="comparison-content" class="hidden space-y-12"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;h3 class="text-xl font-bold text-slate-700 mb-4"&gt;Total Cost Overview&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;p class="text-sm text-slate-500 mb-4"&gt;This chart provides a quick visual summary of the total and monthly costs for each configuration you've added. It helps in identifying the most and least expensive options at a glance.&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;div class="chart-container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;canvas id="barChart"&gt;&lt;/canvas&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;h3 class="text-xl font-bold text-slate-700 mb-4"&gt;Cost Evolution Over Time&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;p class="text-sm text-slate-500 mb-4"&gt;This line chart illustrates how the cumulative cost for each option builds up over its subscription period. It is useful for understanding the long-term financial commitment and a configuration's cost trajectory.&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;div class="chart-container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;canvas id="lineChart"&gt;&lt;/canvas&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;h3 class="text-xl font-bold text-slate-700 mb-4"&gt;Configuration Details&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                 </span>&lt;p class="text-sm text-slate-500 mb-4"&gt;The table below provides a detailed breakdown of each configuration you've saved for comparison, allowing for a direct feature-to-cost analysis.&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;div class="overflow-x-auto"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;table class="min-w-full divide-y divide-slate-200"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>&lt;thead class="bg-slate-50"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>&lt;tr&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                                </span>&lt;th class="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider"&gt;Database&lt;/th&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                                </span>&lt;th class="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider"&gt;Profile&lt;/th&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                                </span>&lt;th class="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider"&gt;Storage&lt;/th&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                                </span>&lt;th class="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider"&gt;Monthly&lt;/th&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                                </span>&lt;th class="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider"&gt;Total Cost&lt;/th&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                                </span>&lt;th class="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider"&gt;&lt;/th&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>&lt;/tr&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>&lt;/thead&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>&lt;tbody id="comparison-table-body" class="bg-white divide-y divide-slate-200"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>&lt;!-- Rows will be inserted here by JavaScript --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>&lt;/tbody&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;/table&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">         </span>&lt;footer class="text-center mt-12 text-sm text-slate-500"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p&gt;Disclaimer: Prices are estimates based on the provided profile data. Storage cost is calculated separately.&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p&gt;This tool is for illustrative purposes only. For a precise quote, please consult official IBM Cloud resources.&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/footer&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;script&gt;</p>
+<p class="p1">document.addEventListener('DOMContentLoaded', () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>// --- DATA &amp; CONFIG ---</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const PROFILE_PRICING = {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>'PostgreSQL Community': [</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{ Profile: 'XS 4x16', vCPUs: 4, RAM_GB: 16, Cost_Monthly_USD: 215.56 }, { Profile: 'S 8x32', vCPUs: 8, RAM_GB: 32, Cost_Monthly_USD: 431.12 }, { Profile: 'S+ 8x64', vCPUs: 8, RAM_GB: 64, Cost_Monthly_USD: 603.50 }, { Profile: 'M 16x64', vCPUs: 16, RAM_GB: 64, Cost_Monthly_USD: 862.23 }, { Profile: 'L 32x128', vCPUs: 32, RAM_GB: 128, Cost_Monthly_USD: 1724.47 }, { Profile: 'XL 30x240', vCPUs: 30, RAM_GB: 240, Cost_Monthly_USD: 2263.12 },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>],</p>
+<p class="p1"><span class="Apple-converted-space">        </span>'MongoDB Community': [</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{ Profile: 'XS 4x16', vCPUs: 4, RAM_GB: 16, Cost_Monthly_USD: 339.98 }, { Profile: 'S 8x32', vCPUs: 8, RAM_GB: 32, Cost_Monthly_USD: 679.96 }, { Profile: 'S+ 8x64', vCPUs: 8, RAM_GB: 64, Cost_Monthly_USD: 972.65 }, { Profile: 'M 16x64', vCPUs: 16, RAM_GB: 64, Cost_Monthly_USD: 1359.93 }, { Profile: 'L 32x128', vCPUs: 32, RAM_GB: 128, Cost_Monthly_USD: 2719.86 }, { Profile: 'XL 30x240', vCPUs: 30, RAM_GB: 240, Cost_Monthly_USD: 3647.44 },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>],</p>
+<p class="p1"><span class="Apple-converted-space">        </span>'MongoDB EA': [</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{ Profile: 'XS 4x16', vCPUs: 4, RAM_GB: 16, Cost_Monthly_USD: 688.45 }, { Profile: 'S 8x32', vCPUs: 8, RAM_GB: 32, Cost_Monthly_USD: 1376.90 }, { Profile: 'S+ 8x64', vCPUs: 8, RAM_GB: 64, Cost_Monthly_USD: 2237.16 }, { Profile: 'M 16x64', vCPUs: 16, RAM_GB: 64, Cost_Monthly_USD: 2753.81 }, { Profile: 'L 32x128', vCPUs: 32, RAM_GB: 128, Cost_Monthly_USD: 5507.62 }, { Profile: 'XL 30x240', vCPUs: 30, RAM_GB: 240, Cost_Monthly_USD: 8389.35 },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>],</p>
+<p class="p1"><span class="Apple-converted-space">        </span>'PostgreSQL EDB': [</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{ Profile: 'XS 4x16', vCPUs: 4, RAM_GB: 16, Cost_Monthly_USD: 630.36 }, { Profile: 'S 8x32', vCPUs: 8, RAM_GB: 32, Cost_Monthly_USD: 1260.72 }, { Profile: 'S+ 8x64', vCPUs: 8, RAM_GB: 64, Cost_Monthly_USD: 1656.24 }, { Profile: 'M 16x64', vCPUs: 16, RAM_GB: 64, Cost_Monthly_USD: 2521.44 }, { Profile: 'L 32x128', vCPUs: 32, RAM_GB: 128, Cost_Monthly_USD: 5042.88 }, { Profile: 'XL 30x240', vCPUs: 30, RAM_GB: 240, Cost_Monthly_USD: 6210.90 },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>],</p>
+<p class="p1"><span class="Apple-converted-space">    </span>};</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const STORAGE_COST_PER_GB_MONTH = 0.63;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const SUBSCRIPTION_DURATIONS = [</p>
+<p class="p1"><span class="Apple-converted-space">        </span>{ id: 1, name: '1 Month' }, { id: 12, name: '1 Year (12 Months)' }, { id: 36, name: '3 Years (36 Months)' },</p>
+<p class="p1"><span class="Apple-converted-space">    </span>];</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const DATABASE_OPTIONS = Object.keys(PROFILE_PRICING);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// --- STATE ---</p>
+<p class="p1"><span class="Apple-converted-space">    </span>let state = {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>db: DATABASE_OPTIONS[0],</p>
+<p class="p1"><span class="Apple-converted-space">        </span>profile: PROFILE_PRICING[DATABASE_OPTIONS[0]][0].Profile,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>storage: 256,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>duration: 12,</p>
+<p class="p1"><span class="Apple-converted-space">    </span>};</p>
+<p class="p1"><span class="Apple-converted-space">    </span>let comparisons = [];</p>
+<p class="p1"><span class="Apple-converted-space">    </span>let nextId = 1;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>let barChartInstance = null;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>let lineChartInstance = null;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// --- DOM ELEMENTS ---</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const dbSelect = document.getElementById('db-select');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const profileSelect = document.getElementById('profile-select');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const storageSlider = document.getElementById('storage-slider');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const storageValue = document.getElementById('storage-value');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const durationSelect = document.getElementById('duration-select');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const totalCostDisplay = document.getElementById('total-cost-display');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const monthlyCostDisplay = document.getElementById('monthly-cost-display');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const addToComparisonBtn = document.getElementById('add-to-comparison-btn');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const comparisonTableBody = document.getElementById('comparison-table-body');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const placeholder = document.getElementById('placeholder');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const comparisonContent = document.getElementById('comparison-content');</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// --- HELPER FUNCTIONS ---</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const formatCurrency = (amount) =&gt; new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// --- CORE LOGIC ---</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function calculateCost(config) {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const profileData = PROFILE_PRICING[config.db]?.find(p =&gt; p.Profile === config.profile);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (!profileData) return { monthly: 0, total: 0 };</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const profileMonthlyCost = profileData.Cost_Monthly_USD;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const storageMonthlyCost = config.storage * STORAGE_COST_PER_GB_MONTH;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const monthlyTotal = profileMonthlyCost + storageMonthlyCost;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const total = monthlyTotal * config.duration;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>return { monthly: monthlyTotal, total: total };</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// --- UI UPDATE FUNCTIONS ---</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function updateConfigCost() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const cost = calculateCost(state);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>totalCostDisplay.textContent = formatCurrency(cost.total);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>monthlyCostDisplay.textContent = `${formatCurrency(cost.monthly)} / month`;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function populateDbSelect() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>dbSelect.innerHTML = DATABASE_OPTIONS.map(db =&gt; `&lt;option value="${db}"&gt;${db}&lt;/option&gt;`).join('');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function populateDurationSelect() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>durationSelect.innerHTML = SUBSCRIPTION_DURATIONS.map(d =&gt; `&lt;option value="${d.id}"&gt;${d.name}&lt;/option&gt;`).join('');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>durationSelect.value = state.duration;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function populateProfileSelect() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const profiles = PROFILE_PRICING[state.db];</p>
+<p class="p1"><span class="Apple-converted-space">        </span>profileSelect.innerHTML = profiles.map(p =&gt; `&lt;option value="${p.Profile}"&gt;${p.Profile} (${p.vCPUs} vCPU, ${p.RAM_GB}GB RAM)&lt;/option&gt;`).join('');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Ensure state profile is valid for the selected DB</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (!profiles.some(p =&gt; p.Profile === state.profile)) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>state.profile = profiles[0].Profile;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>profileSelect.value = state.profile;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function renderComparison() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Toggle placeholder</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (comparisons.length &gt; 0) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>placeholder.classList.add('hidden');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>comparisonContent.classList.remove('hidden');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>placeholder.classList.remove('hidden');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>comparisonContent.classList.add('hidden');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>return;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Render table</p>
+<p class="p1"><span class="Apple-converted-space">        </span>comparisonTableBody.innerHTML = comparisons.map(item =&gt; `</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;tr class="hover:bg-slate-50"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;td class="px-4 py-4 whitespace-nowrap text-sm font-semibold text-slate-900"&gt;${item.db}&lt;/td&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;td class="px-4 py-4 whitespace-nowrap text-sm text-slate-700"&gt;${item.profile} (${item.vcpu}c/${item.ram}GB)&lt;/td&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;td class="px-4 py-4 whitespace-nowrap text-sm text-slate-700"&gt;${item.storage} GB&lt;/td&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-slate-800"&gt;${formatCurrency(item.cost.monthly)}&lt;/td&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;td class="px-4 py-4 whitespace-nowrap text-sm font-bold text-indigo-700"&gt;${formatCurrency(item.cost.total)}&lt;/td&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;td class="px-4 py-4 whitespace-nowrap text-right"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;button class="remove-btn text-red-500 hover:text-red-700" data-id="${item.id}"&gt;&amp;#10005;&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/td&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/tr&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>`).join('');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Render charts</p>
+<p class="p1"><span class="Apple-converted-space">        </span>renderBarChart();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>renderLineChart();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function renderBarChart() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const ctx = document.getElementById('barChart').getContext('2d');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const data = {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>labels: comparisons.map(c =&gt; `${c.db.split(' ')[0]} #${c.id}`),</p>
+<p class="p1"><span class="Apple-converted-space">            </span>datasets: [</p>
+<p class="p1"><span class="Apple-converted-space">                </span>{</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>label: 'Total Cost',</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>data: comparisons.map(c =&gt; c.cost.total),</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>backgroundColor: 'rgba(79, 70, 229, 0.8)',</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>borderColor: 'rgba(79, 70, 229, 1)',</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>borderWidth: 1,</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>borderRadius: 4,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>},</p>
+<p class="p1"><span class="Apple-converted-space">                </span>{</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>label: 'Monthly Cost',</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>data: comparisons.map(c =&gt; c.cost.monthly),</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>backgroundColor: 'rgba(129, 140, 248, 0.8)',</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>borderColor: 'rgba(129, 140, 248, 1)',</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>borderWidth: 1,</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>borderRadius: 4,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>]</p>
+<p class="p1"><span class="Apple-converted-space">        </span>};</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (barChartInstance) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>barChartInstance.destroy();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>barChartInstance = new Chart(ctx, {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>type: 'bar',</p>
+<p class="p1"><span class="Apple-converted-space">            </span>data: data,</p>
+<p class="p1"><span class="Apple-converted-space">            </span>options: {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>responsive: true,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>maintainAspectRatio: false,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>scales: {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>y: {<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                        </span>beginAtZero: true,<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                        </span>ticks: { callback: value =&gt; formatCurrency(value) }<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>},</p>
+<p class="p1"><span class="Apple-converted-space">                </span>plugins: {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>tooltip: {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>callbacks: { label: context =&gt; `${context.dataset.label}: ${formatCurrency(context.raw)}` }</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function renderLineChart() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const ctx = document.getElementById('lineChart').getContext('2d');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const lineColors = ['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#8b5cf6'];</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const maxDuration = comparisons.length &gt; 0 ? Math.max(...comparisons.map(c =&gt; c.duration)) : 0;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const labels = Array.from({ length: maxDuration }, (_, i) =&gt; `Month ${i + 1}`);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const datasets = comparisons.map((item, index) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const data = [];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>for (let month = 1; month &lt;= maxDuration; month++) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>data.push(month &lt;= item.duration ? item.cost.monthly * month : null);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>return {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>label: `${item.db.split(' ')[0]} #${item.id}`,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>data: data,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>borderColor: lineColors[index % lineColors.length],</p>
+<p class="p1"><span class="Apple-converted-space">                </span>backgroundColor: lineColors[index % lineColors.length] + '33', // a transparent version</p>
+<p class="p1"><span class="Apple-converted-space">                </span>fill: false,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>tension: 0.1,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>spanGaps: true</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (lineChartInstance) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>lineChartInstance.destroy();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>lineChartInstance = new Chart(ctx, {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>type: 'line',</p>
+<p class="p1"><span class="Apple-converted-space">            </span>data: { labels, datasets },</p>
+<p class="p1"><span class="Apple-converted-space">            </span>options: {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>responsive: true,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>maintainAspectRatio: false,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>scales: {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>y: {<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                        </span>beginAtZero: true,<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                        </span>ticks: { callback: value =&gt; formatCurrency(value) }<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>},</p>
+<p class="p1"><span class="Apple-converted-space">                </span>plugins: {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>tooltip: {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>callbacks: { label: context =&gt; `${context.dataset.label}: ${formatCurrency(context.raw)}` }</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// --- EVENT LISTENERS ---</p>
+<p class="p1"><span class="Apple-converted-space">    </span>dbSelect.addEventListener('change', (e) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>state.db = e.target.value;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>populateProfileSelect();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>updateConfigCost();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>});</p>
+<p class="p1"><span class="Apple-converted-space">    </span>profileSelect.addEventListener('change', (e) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>state.profile = e.target.value;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>updateConfigCost();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>});</p>
+<p class="p1"><span class="Apple-converted-space">    </span>storageSlider.addEventListener('input', (e) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>state.storage = Number(e.target.value);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>storageValue.textContent = `${state.storage} GB`;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>updateConfigCost();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>});</p>
+<p class="p1"><span class="Apple-converted-space">    </span>durationSelect.addEventListener('change', (e) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>state.duration = Number(e.target.value);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>updateConfigCost();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>});</p>
+<p class="p1"><span class="Apple-converted-space">    </span>addToComparisonBtn.addEventListener('click', () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const profileData = PROFILE_PRICING[state.db].find(p =&gt; p.Profile === state.profile);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const newComparison = {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>id: nextId++,</p>
+<p class="p1"><span class="Apple-converted-space">            </span>...state,</p>
+<p class="p1"><span class="Apple-converted-space">            </span>vcpu: profileData.vCPUs,</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ram: profileData.RAM_GB,</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cost: calculateCost(state),</p>
+<p class="p1"><span class="Apple-converted-space">        </span>};</p>
+<p class="p1"><span class="Apple-converted-space">        </span>comparisons.push(newComparison);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>renderComparison();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>});</p>
+<p class="p1"><span class="Apple-converted-space">    </span>comparisonTableBody.addEventListener('click', (e) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (e.target.classList.contains('remove-btn')) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const idToRemove = Number(e.target.dataset.id);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>comparisons = comparisons.filter(item =&gt; item.id !== idToRemove);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>renderComparison();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// --- INITIALIZATION ---</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function init() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>populateDbSelect();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>populateProfileSelect();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>populateDurationSelect();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>updateConfigCost();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>init();</p>
+<p class="p1">});</p>
+<p class="p1">&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+<p class="p2"><br></p>
+</body>
+</html>
